@@ -25,8 +25,8 @@ Mikal Hart:
 http://arduiniana.org/libraries/newsoftserial/
 
 The web demo will run on any computer using Mojolicios' built-in webserver.
-But you will need a current installation of Perl, Mojolicious, and 
-Device::SerialPort (available from the apt package libdevice-serialport-perl)
+But you will need a current installation of Perl, Mojolicious, IPC::Sharelite
+(libipc-sharelite-perl) and Device::SerialPort (available from the apt package libdevice-serialport-perl)
 
 
 Installation
@@ -35,3 +35,5 @@ The code can be checked out into your Arduino sketchbook directory.
 
 
 Running
+
+
