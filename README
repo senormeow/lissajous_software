@@ -1,1 +1,37 @@
 Visgence Technology Lissajous Mote Software
+
+
+About
+
+This repository contains the software for the Lissajous Mote by Visgence 
+Technology.
+
+
+Features
+
+The current version of the firmware contains the demo shown at the 2011
+Open Hardware Summit. In addition to board firmware (Arduino project), the 
+repository also contains the web demo software, which is based on 
+Mojolicious (http://code.google.com/p/flot/) and Flot (http://mojolicio.us/)
+
+
+Requirements
+
+The Xbee socket on the Lissajous Mote is not connected to the UART of the 
+ATMega, so you will require a "soft serial" library in order to communicate
+with it. The firmware on this site uses the NewSoftSerial library by 
+Mikal Hart:
+
+http://arduiniana.org/libraries/newsoftserial/
+
+The web demo will run on any computer using Mojolicios' built-in webserver.
+But you will need a current installation of Perl, Mojolicious, and 
+Device::SerialPort (available from the apt package libdevice-serialport-perl)
+
+
+Installation
+
+The code can be checked out into your Arduino sketchbook directory.
+
+
+Running
