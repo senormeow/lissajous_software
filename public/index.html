@@ -1,0 +1,185 @@
+<html>
+<head>
+    <script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.10.custom.min.js"></script>
+    <script type="text/javascript" src="js/jquery.xslt.js"></script>
+    <script type="text/javascript" src="flot/jquery.flot.js"></script>
+    <link rel="stylesheet" type="text/css" src="css/smoothness/jquery-ui-1.8.10.custom.cs" />
+</head>
+
+<body>
+<div id="controls">
+    <script type="text/javascript">
+        //script for control panel
+        function send_color()
+        {
+            var form_data = $("#led_changer").serialize();
+            //alert(form_data);
+            $.get("send.cgi",form_data,function(data)
+                                    {
+                                        $("#color_change_result").html(data);
+                                    });
+        }//end send_color
+    </script>
+    
+    <h2>Visgence Lissajous Mote Software Demo</h2>
+    <div id="color_change_result"></div>
+
+    <form id="led_changer" action="javascript:send_color()">
+        Color:<br/>
+        R:<input type="text" name="r" value="255" />
+        <br />
+        G:<input type="text" name="g" value="255" />
+        <br />
+        B:<input type="text" name="b" value="255" />
+        <br />
+        <br />
+        Mote 1<input type="radio" name="id" value="1" checked/><br />
+        Mote 2<input type="radio" name="id" value="2"/><br />
+        Mote 3<input type="radio" name="id" value="3"/><br />
+        Mote 4<input type="radio" name="id" value="4"/><br />
+        Mote 5<input type="radio" name="id" value="5"/><br />
+        <br />
+        <br />
+        Pin 13 LED State? <br />
+        ON <input type="radio" name="led" value="1" checked/><br/>
+        OFF <input type="radio" name="led" value="0"/><br/>
+        <input type="submit" name="submit" value="Change!" />
+    </form>
+</div><!--end controls-->
+
+<h2>Live Sensor Data</h2>
+<div id="results"></div>
+<h3>Temperature</h3>
+<div id="temp_graph" style="width: 600px; height: 400px;"></div>
+<h3>Light Intensity</h3>
+<div id="photo_graph" style="width: 600px; height: 400px;"></div>
+<div id="i" style="display: none;">0</div>
+
+<script type="text/javascript">
+
+    var refresh_rate = 5000;
+    var history_length = 100;
+
+    //set up the plotting of the graphs
+    var mote_data_xsl;
+    var mote_data;
+   
+    //mote data
+    var mote1_temp_data = [];
+    var mote2_temp_data = [];
+    var mote3_temp_data = [];
+    var mote4_temp_data = [];
+    var mote5_temp_data = [];
+        
+    var mote1_photo_data = [];
+    var mote2_photo_data = [];
+    var mote3_photo_data = [];
+    var mote4_photo_data = [];
+    var mote5_photo_data = [];
+
+    $.get("mote_data.xsl",null,function(data)
+                                {
+                                    mote_data_xsl = data;
+                                    //alert(mote_data_xsl);
+                                    start_polling()
+                                });
+    
+    function start_polling()
+    {
+        //starts polling the mote server when the XSL has been downloaded
+        var t = setTimeout("poll()",refresh_rate);     
+    }//end start_polling
+
+    function poll()
+    {
+        //polls the mote server and graphs the returned data
+        var datetime = new Date();
+        var time = datetime.getTime();
+        //i++;
+        
+        var tmp_i = parseInt($("#i").html()); 
+        $("#i").html(tmp_i + 1);
+        //$("#results").html(time);
+        
+        //polll the read script
+        $.get("read.cgi",null,function(data)
+                                {
+                                    $("#results").xslt({xml: data, xsl: mote_data_xsl});
+                                    //alert("asas");
+                                    //$("#results").html(data);
+                                    graph();
+                                    
+                                });
+        
+        //reset the timer so that we poll again
+        var t = setTimeout("poll()",refresh_rate);
+    }//end poll
+    
+    function graph()
+    {
+        //alert("before: "+ j); 
+        //alert(parseInt($("#mote1_temp").html()));
+        var j = parseInt($("#i").html());
+
+        mote1_temp_data.push([j, parseInt($("#mote1_temp").html())]);
+        mote2_temp_data.push([j, parseInt($("#mote2_temp").html())]);
+        mote3_temp_data.push([j, parseInt($("#mote3_temp").html())]);
+        mote4_temp_data.push([j, parseInt($("#mote4_temp").html())]);
+        mote5_temp_data.push([j, parseInt($("#mote5_temp").html())]);
+       
+        //"roll" the array 
+        if(mote1_temp_data.length > history_length)
+            mote1_temp_data.shift();
+        
+        if(mote2_temp_data.length > history_length)
+            mote2_temp_data.shift();
+        
+        if(mote3_temp_data.length > history_length)
+            mote3_temp_data.shift();
+        
+        if(mote4_temp_data.length > history_length)
+            mote4_temp_data.shift();
+        
+        if(mote5_temp_data.length > history_length)
+            mote5_temp_data.shift();
+        
+        //get the photocell data
+        mote1_photo_data.push([j, parseInt($("#mote1_photo").html())]);
+        mote2_photo_data.push([j, parseInt($("#mote2_photo").html())]);
+        mote3_photo_data.push([j, parseInt($("#mote3_photo").html())]);
+        mote4_photo_data.push([j, parseInt($("#mote4_photo").html())]);
+        mote5_photo_data.push([j, parseInt($("#mote5_photo").html())]);
+       
+        if(mote1_photo_data.length > history_length)
+            mote1_photo_data.shift();
+        
+        if(mote2_photo_data.length > history_length)
+            mote2_photo_data.shift();
+        
+        if(mote3_photo_data.length > history_length)
+            mote3_photo_data.shift();
+
+        if(mote4_photo_data.length > history_length)
+            mote4_photo_data.shift();
+
+        if(mote5_photo_data.length > history_length)
+            mote5_photo_data.shift();
+
+        $.plot($("#temp_graph"),[   {label: "Mote 1", data: mote1_temp_data},
+                                    {label: "Mote 2", data: mote2_temp_data}, 
+                                    {label: "Mote 3", data: mote3_temp_data}, 
+                                    {label: "Mote 4", data: mote4_temp_data}, 
+                                    {label: "Mote 5", data: mote5_temp_data}]);
+        
+        $.plot($("#photo_graph"),[  {label: "Mote 1", data: mote1_photo_data},
+                                    {label: "Mote 2", data: mote2_photo_data}, 
+                                    {label: "Mote 3", data: mote3_photo_data}, 
+                                    {label: "Mote 4", data: mote4_photo_data}, 
+                                    {label: "Mote 5", data: mote5_photo_data}]);
+    }//end graph
+
+</script>
+
+</body>
+</html>
