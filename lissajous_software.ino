@@ -1,4 +1,4 @@
-#include <NewSoftSerial.h>
+#include <SoftwareSerial.h>
 #include <avr/sleep.h>
 #include <avr/power.h>
 
@@ -10,7 +10,7 @@
 //Sleep Mode Enables
 //#define SLEEP
 
-NewSoftSerial mySerial(6,7);
+SoftwareSerial mySerial(6,7);
 
 /* network addresses */
 char localhost; //Localhost is pulled from xbee
